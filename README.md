@@ -16,3 +16,6 @@ it's a repo containing my setup for the sakura terminal and neofetch
 4. your neofetch theme will be as the same as on the example demo.
 
 ## demo
+
+1. ![1](demo/01.png)
+2. ![2](demo/02.png)
