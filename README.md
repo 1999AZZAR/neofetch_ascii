@@ -17,5 +17,13 @@ it's a repo containing my setup for the sakura terminal and neofetch
 
 ## demo
 
-1. ![1](demo/01.png)
-2. ![2](demo/02.png)
+![1](demo/01.png)
+![2](demo/02.png)
+![3](demo/03.png)
+![4](demo/04.png)
+![5](demo/05.png)
+![6](demo/06.png)
+![7](demo/07.png)
+![8](demo/08.png)
+![9](demo/09.png)
+![10](demo/10.png)
