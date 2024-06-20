@@ -12,8 +12,7 @@ it's a repo containing my setup for the sakura terminal and neofetch
 
 1. do all the above part
 2. done
-3. now you will have the ability to loop all the ascii art automaticaly by using `looper` command on your terminal.
-4. your neofetch theme will be as the same as on the example demo.
+3. your neofetch theme will be as the same as on the example demo.
 
 ## demo
 
