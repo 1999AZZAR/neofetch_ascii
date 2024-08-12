@@ -16,7 +16,11 @@ it's a repo containing my setup for the sakura terminal and neofetch
 
 ## demo
 
+### usecase
 [![asciicast](https://asciinema.org/a/kvIYKfWWprJeNAWB0E86Z7s7X.svg)](https://asciinema.org/a/kvIYKfWWprJeNAWB0E86Z7s7X)
+
+### looper
+[![asciicast](https://asciinema.org/a/RVnWXlRwS1GLoHTbfL0teIeHM.svg)](https://asciinema.org/a/RVnWXlRwS1GLoHTbfL0teIeHM)
 
 > warning note:
 > its mostly 18+ material, so do it on your one risk.
