@@ -2,7 +2,16 @@
 
 it's a repo containing my setup for the sakura terminal and neofetch
 
-## what you need to follow
+## Isntallation:
+
+### Auto install
+
+just run this and u good to go
+```bash
+curl -sSL https://raw.githubusercontent.com/1999AZZAR/neofetch_ascii/master/install.sh | sudo bash
+```
+
+### Manual install
 
 1. put the `config.conf` to `/home/[username]/.config/neofetch/` or where you put your neofetch config file are.
 2. put the `sakura.conf` to `/home/[username]/.config/sakura/` or where you put your sakura config file are.
