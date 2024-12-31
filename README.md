@@ -1,35 +1,51 @@
-# my rice for sakura and neofetch
+# My Rice for Sakura and Neofetch
 
-it's a repo containing my setup for the sakura terminal and neofetch
+A repository containing my setup for the Sakura terminal and Neofetch.
 
-## Isntallation:
+## Installation
 
-### Auto install
+### Automatic Installation
 
-just run this and u good to go
+Run the following command to set everything up automatically:
 ```bash
 curl -sSL https://raw.githubusercontent.com/1999AZZAR/neofetch_ascii/master/install.sh | sudo bash
 ```
 
-### Manual install
+### Manual Installation
 
-1. put the `config.conf` to `/home/[username]/.config/neofetch/` or where you put your neofetch config file are.
-2. put the `sakura.conf` to `/home/[username]/.config/sakura/` or where you put your sakura config file are.
-3. put the ascii folder and its content on to `/usr/` folder
+Follow these steps to install manually:
 
-### how to use
+1. Place `config.conf` in the Neofetch configuration directory:
+   ```
+   /home/[username]/.config/neofetch/
+   ```
+   or wherever your Neofetch config file is located.
 
-1. do all the above part
-2. done
-3. your neofetch theme will be as the same as on the example demo.
+2. Place `sakura.conf` in the Sakura configuration directory:
+   ```
+   /home/[username]/.config/sakura/
+   ```
+   or wherever your Sakura config file is located.
 
-## demo
+3. Copy the `ascii` folder and its contents to the `/usr/` directory:
+   ```
+   /usr/
+   ```
 
-### usecase
+### How to Use
+
+1. Complete the installation steps above.
+2. Enjoy! Your Neofetch theme will now match the demo shown below.
+
+## Demo
+
+### Use Case
+
 [![asciicast](https://asciinema.org/a/kvIYKfWWprJeNAWB0E86Z7s7X.svg)](https://asciinema.org/a/kvIYKfWWprJeNAWB0E86Z7s7X)
 
-### looper
+### Looper
+
 [![asciicast](https://asciinema.org/a/RVnWXlRwS1GLoHTbfL0teIeHM.svg)](https://asciinema.org/a/RVnWXlRwS1GLoHTbfL0teIeHM)
 
-> warning note:
-> its mostly 18+ material, so do it on your one risk.
+> **Warning:**
+> This setup includes content that is primarily for mature audiences (18+). Proceed at your own risk.
