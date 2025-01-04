@@ -13,9 +13,18 @@ trap cleanup SIGINT
 # Flag to indicate whether to continue looping
 running=true
 
+# Check if the -r flag is set
+if [[ "$1" == "-r" ]]; then
+    # Use shuf to shuffle the list of .txt files
+    files=$(ls *.txt | shuf)
+else
+    # If no -r flag, just use the normal order
+    files=$(ls *.txt)
+fi
+
 # Loop until the running flag is false
 while $running; do
-    for file in *.txt; do
+    for file in $files; do
 
         # Get terminal size
         lines=$(tput lines)
@@ -38,6 +47,6 @@ while $running; do
             ((start_line++))
         done
 
-        sleep 0.75
+        sleep 0.7
     done
 done
