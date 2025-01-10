@@ -1,17 +1,34 @@
 #!/bin/bash
 
-# Function to clean up and exit
+# Save the initial directory and cursor position
+original_dir=$(pwd)
+save_cursor_pos() {
+    printf '\e[s' # Save cursor position
+}
+
+# Restore the original directory and cursor position
+restore_state() {
+    printf '\e[u' # Restore cursor position
+    cd "$original_dir" || exit 1
+}
+
+# Cleanup function to handle script termination
 cleanup() {
+    restore_state
     clear
     exit
 }
 
-# Trap Ctrl+C to run the cleanup function
-trap cleanup SIGINT
+# Trap Ctrl+C and other signals to run cleanup
+trap cleanup SIGINT SIGTERM
 
-# Function to display a file's content
+# Save initial cursor position
+save_cursor_pos
+
+# Function to display a file's content with a specified delay
 display_file() {
     local file="$1"
+    local delay="$2"
 
     # Get terminal size
     lines=$(tput lines)
@@ -34,7 +51,7 @@ display_file() {
         ((start_line++))
     done
 
-    sleep 0.7
+    sleep "$delay"
 }
 
 # Help message
@@ -47,6 +64,7 @@ show_help() {
     echo "  -o              Display all files in order (loop). (Default behavior)"
     echo "  -fr <start:end> Display files from a range in random order."
     echo "  -fo <start:end> Display files from a range in order."
+    echo "  -t <delay>      Set custom delay (in seconds)."
     echo "  -h              Show this help message."
 }
 
@@ -54,6 +72,7 @@ show_help() {
 mode="ordered_loop" # Default to ordered loop
 specific_file=""
 range=""
+custom_delay=""
 while [[ "$#" -gt 0 ]]; do
     case $1 in
     -f)
@@ -71,6 +90,10 @@ while [[ "$#" -gt 0 ]]; do
     -fo)
         mode="range_ordered"
         range="$2"
+        shift
+        ;;
+    -t)
+        custom_delay="$2"
         shift
         ;;
     -h)
@@ -91,25 +114,28 @@ case "$mode" in
 "specific")
     file=$(printf "%03d.txt" "$specific_file")
     if [[ -f "$file" ]]; then
-        display_file "$file"
+        delay="${custom_delay:-1.5}" # Use custom delay if set, otherwise default to 1.5
+        display_file "$file" "$delay"
     else
         echo "Error: File '$file' not found."
     fi
-    exit
+    cleanup
     ;;
 "random_loop")
     files=$(ls *.txt | shuf)
+    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
     while true; do
         for file in $files; do
-            display_file "$file"
+            display_file "$file" "$delay"
         done
     done
     ;;
 "ordered_loop")
     files=$(ls *.txt | sort)
+    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
     while true; do
         for file in $files; do
-            display_file "$file"
+            display_file "$file" "$delay"
         done
     done
     ;;
@@ -120,15 +146,16 @@ case "$mode" in
     if [[ "$mode" == "range_random" ]]; then
         files=$(echo "$files" | shuf)
     fi
+    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
     while true; do
         for file in $files; do
-            display_file "$file"
+            display_file "$file" "$delay"
         done
     done
     ;;
 *)
     echo "Error: Invalid or missing mode."
     show_help
-    exit 1
+    cleanup
     ;;
 esac
