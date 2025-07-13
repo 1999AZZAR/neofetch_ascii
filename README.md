@@ -1,6 +1,6 @@
 # My Rice for Neofetch
 
-A repository containing my setup Neofetch.
+A repository containing my setup for Neofetch.
 
 ## Installation
 
@@ -12,7 +12,7 @@ Run the installer:
 curl -sSL https://raw.githubusercontent.com/1999AZZAR/neofetch_ascii/master/install.sh | bash
 ```
 
-After installation:
+After installation, reload your shell configuration:
 
 - If you use Bash:
   
@@ -29,61 +29,67 @@ After installation:
 
 Follow these steps to install manually:
 
-1. Place `config.conf` in the Neofetch configuration directory:
-   
-   ```
-   /home/[username]/.config/neofetch/
-   ```
-   
-   or wherever your Neofetch config file is located.
+1. **Clone the repository:**
 
-2. Copy the `ascii` folder and its contents to the `$HOME/Pictures/` directory:
-   
-   ```
-   $HOME/Pictures/
+   ```bash
+   git clone https://github.com/1999AZZAR/neofetch_ascii.git ~/.local/share/neofetch_ascii
    ```
 
-3. Ensure `loopers.sh` has executable permissions:
+2. **Place `config.conf` in the Neofetch configuration directory:**
    
    ```bash
-   chmod +x $HOME/Pictures/ascii/loopers.sh
+   mkdir -p ~/.config/neofetch
+   cp ~/.local/share/neofetch_ascii/config.conf ~/.config/neofetch/
    ```
 
-### How to Use
+3. **Create a symbolic link for the `ascii` folder:**
+   
+   ```bash
+   mkdir -p ~/Pictures
+   ln -sfn ~/.local/share/neofetch_ascii/ascii ~/Pictures/ascii
+   ```
+
+4. **Ensure `loopers.sh` has executable permissions:**
+   
+   ```bash
+   chmod +x ~/Pictures/ascii/loopers.sh
+   ```
+
+5. **Add the `ascii` function to your shell configuration (`~/.bashrc` or `~/.zshrc`):**
+
+   ```bash
+   ascii() {
+       # Save the current directory
+       local original_dir=$(pwd)
+   
+       # Change to the ASCII art directory
+       cd "$HOME/Pictures/ascii/" || {
+           echo "Error: $HOME/Pictures/ascii/ directory not found."
+           return 1
+       }
+   
+       # Call the loopers.sh script with passed arguments
+       ./loopers.sh "$@"
+   
+       # Restore the original directory
+       cd "$original_dir" || {
+           echo "Error: Unable to return to the original directory."
+           return 1
+       }
+   }
+   ```
+
+6. **Reload your shell configuration:**
+  
+   ```bash
+   source ~/.bashrc  # Or `source ~/.zshrc` for Zsh
+   ```
+
+## How to Use
 
 #### Running Looper (`loopers.sh`)
 
 You can use the `ascii` function to invoke the `loopers.sh` script from any directory.
-
-- Add the following function to your shell configuration (`~/.bashrc`, `~/.zshrc`, etc.):
-  
-  ```bash
-  ascii() {
-      # Save the current directory
-      local original_dir=$(pwd)
-  
-      # Change to the ASCII art directory
-      cd $HOME/Pictures/ascii/ || {
-          echo "Error: $HOME/Pictures/ascii/ directory not found."
-          return 1
-      }
-  
-      # Call the loopers.sh script with passed arguments
-      ./loopers.sh "$@"
-  
-      # Restore the original directory
-      cd "$original_dir" || {
-          echo "Error: Unable to return to the original directory."
-          return 1
-      }
-  }
-  ```
-
-- Reload your shell configuration:
-  
-  ```bash
-  source ~/.bashrc  # Or `source ~/.zshrc` for Zsh
-  ```
 
 #### Command-Line Options for `loopers.sh`
 

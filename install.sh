@@ -26,22 +26,27 @@ done
 
 # Clone or update the repository
 if [ -d "$REPO_DIR" ]; then
+  echo "Updating repository..."
   cd "$REPO_DIR"
   git pull
 else
+  echo "Cloning repository..."
   git clone "$REPO_URL" "$REPO_DIR"
   cd "$REPO_DIR"
 fi
 
 # Copy configuration files
+echo "Copying configuration..."
 mkdir -p "$CONFIG_DIR/neofetch"
 cp -f config.conf "$CONFIG_DIR/neofetch/"
 
 # Link the ASCII directory
-sudo ln -sfn "$REPO_DIR/ascii" "$HOME/Pictures/ascii"
+echo "Creating symlink for ASCII directory..."
+mkdir -p "$HOME/Pictures"
+ln -sfn "$REPO_DIR/ascii" "$HOME/Pictures/ascii"
 
 # Ensure loopers.sh is executable
-chmod +x $HOME/Pictures/ascii/loopers.sh
+chmod +x "$HOME/Pictures/ascii/loopers.sh"
 
 # Add the custom caller function to the shell configuration
 if ! grep -q "ascii()" "$SHELL_CONFIG"; then
@@ -51,19 +56,19 @@ if ! grep -q "ascii()" "$SHELL_CONFIG"; then
 # Custom ASCII Caller Function
 ascii() {
     # Save the current directory
-    local original_dir=\$(pwd)
+    local original_dir=$(pwd)
 
     # Change to the ASCII art directory
-    cd /usr/ascii/ || {
-        echo "Error: /usr/ascii/ directory not found."
+    cd "$HOME/Pictures/ascii/" || {
+        echo "Error: $HOME/Pictures/ascii/ directory not found."
         return 1
     }
 
     # Call the loopers.sh script with passed arguments
-    ./loopers.sh "\$@"
+    ./loopers.sh "$@"
 
     # Restore the original directory
-    cd "\$original_dir" || {
+    cd "$original_dir" || {
         echo "Error: Unable to return to the original directory."
         return 1
     }
