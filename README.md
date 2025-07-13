@@ -1,6 +1,6 @@
-# My Rice for Sakura and Neofetch
+# My Rice for Neofetch
 
-A repository containing my setup for the Sakura terminal and Neofetch.
+A repository containing my setup Neofetch.
 
 ## Installation
 
@@ -37,24 +37,16 @@ Follow these steps to install manually:
    
    or wherever your Neofetch config file is located.
 
-2. Place `sakura.conf` in the Sakura configuration directory:
+2. Copy the `ascii` folder and its contents to the `$HOME/Pictures/` directory:
    
    ```
-   /home/[username]/.config/sakura/
-   ```
-   
-   or wherever your Sakura config file is located.
-
-3. Copy the `ascii` folder and its contents to the `/usr/` directory:
-   
-   ```
-   /usr/
+   $HOME/Pictures/
    ```
 
-4. Ensure `loopers.sh` has executable permissions:
+3. Ensure `loopers.sh` has executable permissions:
    
    ```bash
-   chmod +x /usr/ascii/loopers.sh
+   chmod +x $HOME/Pictures/ascii/loopers.sh
    ```
 
 ### How to Use
@@ -71,8 +63,8 @@ You can use the `ascii` function to invoke the `loopers.sh` script from any dire
       local original_dir=$(pwd)
   
       # Change to the ASCII art directory
-      cd /usr/ascii/ || {
-          echo "Error: /usr/ascii/ directory not found."
+      cd $HOME/Pictures/ascii/ || {
+          echo "Error: $HOME/Pictures/ascii/ directory not found."
           return 1
       }
   
@@ -101,7 +93,7 @@ You can use the `ascii` function to invoke the `loopers.sh` script from any dire
    ascii -o
    ```
    
-   Displays all files in `/usr/ascii/` in alphabetical order with a default delay of **0.7 seconds**.
+   Displays all files in `$HOME/Pictures/ascii/` in alphabetical order with a default delay of **0.7 seconds**.
 
 2. **Specific File Display:**
    
