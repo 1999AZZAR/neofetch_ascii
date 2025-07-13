@@ -1,161 +1,181 @@
 #!/bin/bash
 
-# Save the initial directory and cursor position
-original_dir=$(pwd)
-save_cursor_pos() {
-    printf '\e[s' # Save cursor position
-}
+# ==============================================================================
+# Looper - ASCII Art Slideshow
+# Version: 2.0
+#
+# Displays ASCII art files in a centered, looping slideshow. It is designed
+# to be called from any location in the filesystem.
+# ==============================================================================
 
-# Restore the original directory and cursor position
-restore_state() {
-    printf '\e[u' # Restore cursor position
-    cd "$original_dir" || exit 1
-}
+# --- Core Setup ---
+# Find the script's own directory, making it callable from anywhere.
+# This is the most critical part for portability.
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
-# Cleanup function to handle script termination
-cleanup() {
-    restore_state
-    clear
-    exit
-}
+# !! CONFIGURATION: Set the directory where your ASCII art .txt files are located.
+# By default, it's the same directory as the script.
+ART_DIR="$SCRIPT_DIR"
 
-# Trap Ctrl+C and other signals to run cleanup
+# --- Cleanup & State Management ---
+# Save cursor position on start.
+printf '\e[s'
+
+# Trap Ctrl+C (SIGINT) or termination signals (SIGTERM) to run cleanup.
 trap cleanup SIGINT SIGTERM
 
-# Save initial cursor position
-save_cursor_pos
+cleanup() {
+  printf '\e[u' # Restore cursor position.
+  tput cnorm    # Ensure cursor is visible.
+  clear         # Clear the screen.
+  exit 0
+}
 
-# Function to display a file's content with a specified delay
+# --- Main Functions ---
+
+# Displays a file's content, properly centered on the terminal.
 display_file() {
-    local file="$1"
-    local delay="$2"
+  local file_path="$1"
+  local delay="$2"
 
-    # Get terminal size
-    lines=$(tput lines)
-    cols=$(tput cols)
+  # Ensure the file is readable before proceeding.
+  if [[ ! -r "$file_path" ]]; then
+    return
+  fi
 
-    # Read the ASCII art content into an array
-    IFS=$'\n' read -d '' -r -a art <"$file"
+  # Read the art into an array and find its dimensions.
+  mapfile -t art <"$file_path"
+  local art_height=${#art[@]}
+  local art_width=0
+  for line in "${art[@]}"; do
+    ((${#line} > art_width)) && art_width=${#line}
+  done
 
-    # Calculate position for centering
-    start_line=$(((lines - ${#art[@]}) / 2))
-    start_col=$(((cols - ${#art[0]}) / 2))
+  # Get terminal dimensions.
+  local term_height=$(tput lines)
+  local term_width=$(tput cols)
 
-    # Clear the terminal
-    clear
+  # Calculate top-left coordinates for centering.
+  local start_line=$(((term_height - art_height) / 2))
+  local start_col=$(((term_width - art_width) / 2))
 
-    # Display ASCII art with leading spaces for centering
-    for line in "${art[@]}"; do
-        printf '\e[%s;%sH' "$start_line" "$start_col"
-        printf ' %s\n' "$line"
-        ((start_line++))
-    done
+  # Clear screen and hide cursor for clean display.
+  clear
+  tput civis
 
-    sleep "$delay"
+  # Print each line of the art at the calculated position.
+  for line in "${art[@]}"; do
+    # Move cursor to position, then print line.
+    printf '\e[%s;%sH%s' "$start_line" "$start_col" "$line"
+    ((start_line++))
+  done
+
+  sleep "$delay"
 }
 
-# Help message
+# Shows the help message.
 show_help() {
-    echo "Usage: $0 [options]"
-    echo
-    echo "Options:"
-    echo "  -f <file>       Display a specific file (no loop, use file number)."
-    echo "  -r              Display all files in random order (loop)."
-    echo "  -o              Display all files in order (loop). (Default behavior)"
-    echo "  -fr <start:end> Display files from a range in random order."
-    echo "  -fo <start:end> Display files from a range in order."
-    echo "  -t <delay>      Set custom delay (in seconds)."
-    echo "  -h              Show this help message."
+  echo "Usage: $(basename "$0") [options]"
+  echo
+  echo "Options:"
+  echo "  -o                Display all files in order (loop). [Default]"
+  echo "  -r                Display all files in random order (loop)."
+  echo "  -f <number>       Display a specific file by its number (e.g., 5 for 005.txt)."
+  echo "  -fo <start:end>   Display a range of files in order (loop)."
+  echo "  -fr <start:end>   Display a range of files in random order (loop)."
+  echo "  -t <seconds>      Set a custom delay between files."
+  echo "  -h                Show this help message."
 }
 
-# Parse command-line arguments
-mode="ordered_loop" # Default to ordered loop
-specific_file=""
-range=""
-custom_delay=""
+# --- Argument Parsing ---
+mode="ordered_loop"
+delay=0.7
+is_loop=true
+files_to_process=()
+
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-    -f)
-        mode="specific"
-        specific_file="$2"
-        shift
-        ;;
-    -r) mode="random_loop" ;;
-    -o) mode="ordered_loop" ;; # Explicit use of ordered loop
-    -fr)
-        mode="range_random"
-        range="$2"
-        shift
-        ;;
-    -fo)
-        mode="range_ordered"
-        range="$2"
-        shift
-        ;;
-    -t)
-        custom_delay="$2"
-        shift
-        ;;
-    -h)
-        show_help
-        exit 0
-        ;;
-    *)
-        echo "Unknown option: $1"
-        show_help
-        exit 1
-        ;;
-    esac
+  case $1 in
+  -o) mode="ordered_loop" ;;
+  -r) mode="random_loop" ;;
+  -f)
+    mode="specific"
+    specific_file="$2"
+    is_loop=false
     shift
+    ;;
+  -fo)
+    mode="range_ordered"
+    range="$2"
+    shift
+    ;;
+  -fr)
+    mode="range_random"
+    range="$2"
+    shift
+    ;;
+  -t)
+    delay="$2"
+    shift
+    ;;
+  -h)
+    show_help
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1"
+    show_help
+    exit 1
+    ;;
+  esac
+  shift
 done
 
-# Handle modes
+# --- File List Preparation ---
+
 case "$mode" in
-"specific")
-    file=$(printf "%03d.txt" "$specific_file")
-    if [[ -f "$file" ]]; then
-        delay="${custom_delay:-1.5}" # Use custom delay if set, otherwise default to 1.5
-        display_file "$file" "$delay"
-    else
-        echo "Error: File '$file' not found."
-    fi
-    cleanup
-    ;;
-"random_loop")
-    files=$(ls *.txt | shuf)
-    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
-    while true; do
-        for file in $files; do
-            display_file "$file" "$delay"
-        done
-    done
-    ;;
-"ordered_loop")
-    files=$(ls *.txt | sort)
-    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
-    while true; do
-        for file in $files; do
-            display_file "$file" "$delay"
-        done
-    done
-    ;;
-"range_random" | "range_ordered")
-    IFS=':' read -r start end <<<"$range"
-    files=$(seq -f "%03g.txt" "$start" "$end" 2>/dev/null)
-    files=$(echo "$files" | xargs -n1 ls 2>/dev/null) # Filter only existing files
-    if [[ "$mode" == "range_random" ]]; then
-        files=$(echo "$files" | shuf)
-    fi
-    delay="${custom_delay:-0.7}" # Use custom delay if set, otherwise default to 0.7
-    while true; do
-        for file in $files; do
-            display_file "$file" "$delay"
-        done
-    done
-    ;;
-*)
-    echo "Error: Invalid or missing mode."
-    show_help
-    cleanup
-    ;;
+specific)
+  file_path=$(printf "%s/%03d.txt" "$ART_DIR" "$specific_file")
+  [[ -f "$file_path" ]] && files_to_process=("$file_path")
+  ;;
+
+ordered_loop | random_loop)
+  # Use a safe loop and globbing instead of parsing 'ls'.
+  for f in "$ART_DIR"/*.txt; do
+    [[ -e "$f" ]] && files_to_process+=("$f")
+  done
+  ;;
+
+range_ordered | range_random)
+  IFS=':' read -r start end <<<"$range"
+  for i in $(seq "$start" "$end"); do
+    file_path=$(printf "%s/%03d.txt" "$ART_DIR" "$i")
+    [[ -f "$file_path" ]] && files_to_process+=("$file_path")
+  done
+  ;;
 esac
+
+# Shuffle the list if a random mode was selected.
+if [[ "$mode" == "random_loop" || "$mode" == "range_random" ]]; then
+  mapfile -t files_to_process < <(printf "%s\n" "${files_to_process[@]}" | shuf)
+fi
+
+# Check if we have any files to show.
+if [[ ${#files_to_process[@]} -eq 0 ]]; then
+  echo "Error: No ASCII art files found in '$ART_DIR'."
+  [[ "$mode" == "specific" ]] && echo "Specifically, could not find file number '$specific_file'."
+  exit 1
+fi
+
+# --- Main Execution Loop ---
+
+while true; do
+  for file in "${files_to_process[@]}"; do
+    display_file "$file" "$delay"
+  done
+
+  # If not in a loop mode (like -f), exit after one pass.
+  [[ "$is_loop" == false ]] && break
+done
+
+# Final cleanup before exiting naturally (e.g., after -f).
+cleanup
